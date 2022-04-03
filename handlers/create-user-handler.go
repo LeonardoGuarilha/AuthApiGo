@@ -19,6 +19,16 @@ func CreateUserHandler(c *gin.Context) {
 		return
 	}
 
+	dbError := db.Where("email = ?", user.Email).First(&user).Row()
+
+	if dbError != nil {
+		c.JSON(400, gin.H{
+			"message": "user already exists",
+		})
+
+		return
+	}
+
 	user.Password = services.SHA256Encoder(user.Password)
 
 	err = db.Create(&user).Error
